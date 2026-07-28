@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sugarcane IAAS — AI Irrigation Advisory System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M12 6v6l4 2"/>
+            <path d="M8 14c0 2.21 1.79 4 4 4s4-1.79 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Sugarcane IAAS</h1>
+          <span>AI & Sensor Irrigation</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active" data-section="dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </a>
+        <a href="#sensors" class="nav-item" data-section="sensors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          Sensor Network
+        </a>
+        <a href="#advisory" class="nav-item" data-section="advisory">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+          AI Advisory
+        </a>
+        <a href="#fields" class="nav-item" data-section="fields">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22h20M6 22V10l6-6 6 6v12"/><path d="M10 22v-6h4v6"/></svg>
+          Field Zones
+        </a>
+        <a href="#crop" class="nav-item" data-section="crop">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12M12 12C12 12 8 10 8 6c0-2.21 1.79-4 4-4s4 1.79 4 4c0 4-4 6-4 6z"/></svg>
+          Crop Stage
+        </a>
+        <a href="#analytics" class="nav-item" data-section="analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 5-10"/></svg>
+          Analytics
+        </a>
+        <a href="#alerts" class="nav-item" data-section="alerts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Alerts
+          <span class="badge" id="alert-badge">3</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="connection-status online">
+          <span class="status-dot"></span>
+          IoT Gateway Online
+        </div>
+        <p class="last-sync">Last sync: <span id="last-sync">--</span></p>
+      </div>
+    </aside>
+
+    <!-- Mobile menu toggle -->
+    <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <h2 id="page-title">Dashboard</h2>
+          <p id="page-subtitle">Real-time monitoring & irrigation insights</p>
+        </div>
+        <div class="header-right">
+          <div class="weather-widget" id="weather-widget">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <div>
+              <span class="weather-temp" id="weather-temp">32°C</span>
+              <span class="weather-desc" id="weather-desc">Partly Cloudy</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="run-ai-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Run AI Analysis
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Section -->
+      <section id="dashboard" class="section active">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon soil">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Soil Moisture</span>
+              <span class="metric-value" id="metric-moisture">--</span>
+              <span class="metric-unit">% volumetric</span>
+            </div>
+            <div class="metric-trend up" id="trend-moisture">+2.1%</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon temp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Soil Temperature</span>
+              <span class="metric-value" id="metric-temp">--</span>
+              <span class="metric-unit">°C at 15cm depth</span>
+            </div>
+            <div class="metric-trend stable" id="trend-temp">±0.3°C</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon humidity">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Air Humidity</span>
+              <span class="metric-value" id="metric-humidity">--</span>
+              <span class="metric-unit">% relative</span>
+            </div>
+            <div class="metric-trend down" id="trend-humidity">-1.5%</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon rain">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 13v8M8 13v8M12 15v8M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Rainfall (24h)</span>
+              <span class="metric-value" id="metric-rain">--</span>
+              <span class="metric-unit">mm</span>
+            </div>
+            <div class="metric-trend stable" id="trend-rain">No change</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card chart-card">
+            <div class="card-header">
+              <h3>Soil Moisture Trend (7 Days)</h3>
+              <select id="chart-range" class="select-sm">
+                <option value="7">7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+              </select>
+            </div>
+            <div class="chart-container">
+              <canvas id="moisture-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="card advisory-card">
+            <div class="card-header">
+              <h3>Today's AI Recommendation</h3>
+              <span class="status-pill" id="irrigation-status">Analyzing...</span>
+            </div>
+            <div class="advisory-content" id="quick-advisory">
+              <div class="advisory-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+              </div>
+              <div class="advisory-text">
+                <h4 id="advisory-title">Loading recommendation...</h4>
+                <p id="advisory-desc">Analyzing sensor data and crop stage...</p>
+              </div>
+            </div>
+            <div class="advisory-details">
+              <div class="detail-item">
+                <span class="detail-label">Suggested Volume</span>
+                <span class="detail-value" id="advisory-volume">-- mm</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Best Window</span>
+                <span class="detail-value" id="advisory-window">--</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Confidence</span>
+                <span class="detail-value" id="advisory-confidence">--%</span>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-block" data-goto="advisory">View Full Analysis</button>
+          </div>
+        </div>
+
+        <div class="dashboard-grid secondary">
+          <div class="card">
+            <div class="card-header">
+              <h3>Crop Growth Progress</h3>
+            </div>
+            <div class="crop-progress">
+              <div class="stage-track" id="stage-track"></div>
+              <div class="stage-info">
+                <span id="current-stage-name">Germination</span>
+                <span id="current-stage-day">Day 45 of ~365</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Active Alerts</h3>
+              <a href="#alerts" class="link" data-goto="alerts">View all</a>
+            </div>
+            <ul class="alert-list compact" id="dashboard-alerts"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sensors Section -->
+      <section id="sensors" class="section">
+        <div class="section-toolbar">
+          <div class="filter-group">
+            <label>Field Zone</label>
+            <select id="sensor-zone-filter" class="select">
+              <option value="all">All Zones</option>
+              <option value="A">Zone A — North Block</option>
+              <option value="B">Zone B — Central Block</option>
+              <option value="C">Zone C — South Block</option>
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="refresh-sensors">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh Sensors
+          </button>
+        </div>
+
+        <div class="sensor-grid" id="sensor-grid"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Sensor Network Topology</h3>
+          </div>
+          <div class="network-map" id="network-map">
+            <div class="gateway-node">
+              <div class="node-icon gateway">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <span>IoT Gateway</span>
+            </div>
+            <div class="network-zones" id="network-zones"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI Advisory Section -->
+      <section id="advisory" class="section">
+        <div class="advisory-hero">
+          <div class="hero-content">
+            <span class="hero-badge">Powered by Machine Learning</span>
+            <h3>Intelligent Irrigation Decision Support</h3>
+            <p>Our AI model combines real-time sensor readings, weather forecasts, evapotranspiration (ET₀) calculations, and sugarcane phenological stage to deliver precision irrigation advisories.</p>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <span class="stat-num">94.2%</span>
+              <span class="stat-label">Model Accuracy</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-num">32%</span>
+              <span class="stat-label">Water Saved</span>
+            </div>
+            <div class="hero-stat">
+              <span class="stat-num">18%</span>
+              <span class="stat-label">Yield Increase</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="advisory-grid">
+          <div class="card ai-result-card">
+            <div class="card-header">
+              <h3>Current Recommendation</h3>
+              <button class="btn btn-primary btn-sm" id="recalculate-btn">Recalculate</button>
+            </div>
+            <div class="ai-result" id="ai-result">
+              <div class="result-verdict" id="result-verdict">
+                <div class="verdict-icon" id="verdict-icon"></div>
+                <div>
+                  <h4 id="verdict-title">--</h4>
+                  <p id="verdict-desc">--</p>
+                </div>
+              </div>
+              <div class="result-params">
+                <div class="param-row">
+                  <span>ET₀ (Reference Evapotranspiration)</span>
+                  <strong id="param-eto">-- mm/day</strong>
+                </div>
+                <div class="param-row">
+                  <span>Crop Coefficient (Kc)</span>
+                  <strong id="param-kc">--</strong>
+                </div>
+                <div class="param-row">
+                  <span>Crop Water Requirement</span>
+                  <strong id="param-cwr">-- mm</strong>
+                </div>
+                <div class="param-row">
+                  <span>Effective Rainfall</span>
+                  <strong id="param-rain">-- mm</strong>
+                </div>
+                <div class="param-row highlight">
+                  <span>Net Irrigation Need</span>
+                  <strong id="param-net">-- mm</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Input Factors</h3>
+            </div>
+            <div class="factor-list" id="factor-list"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>7-Day Irrigation Schedule</h3>
+          </div>
+          <div class="schedule-table-wrap">
+            <table class="schedule-table" id="schedule-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>ET₀</th>
+                  <th>Soil Moisture</th>
+                  <th>Rain Forecast</th>
+                  <th>Recommendation</th>
+                  <th>Volume</th>
+                </tr>
+              </thead>
+              <tbody id="schedule-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Field Zones Section -->
+      <section id="fields" class="section">
+        <div class="fields-layout">
+          <div class="card field-map-card">
+            <div class="card-header">
+              <h3>Field Zone Map</h3>
+              <div class="map-legend">
+                <span class="legend-item"><i class="dot optimal"></i> Optimal</span>
+                <span class="legend-item"><i class="dot moderate"></i> Moderate</span>
+                <span class="legend-item"><i class="dot critical"></i> Critical</span>
+              </div>
+            </div>
+            <div class="field-map" id="field-map"></div>
+          </div>
+
+          <div class="zone-details" id="zone-details">
+            <div class="card">
+              <div class="card-header">
+                <h3 id="zone-detail-title">Select a Zone</h3>
+              </div>
+              <p class="zone-placeholder">Click on a field zone to view detailed sensor data and irrigation status.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Crop Stage Section -->
+      <section id="crop" class="section">
+        <div class="crop-header-card card">
+          <div class="crop-header-info">
+            <h3>Sugarcane Crop Calendar</h3>
+            <p>Variety: <strong>Co 86032</strong> | Planted: <strong>15 Jun 2026</strong> | Expected Harvest: <strong>Jun 2027</strong></p>
+          </div>
+          <div class="crop-day-counter">
+            <span class="day-num" id="crop-day-num">45</span>
+            <span class="day-label">Days Since Planting</span>
+          </div>
+        </div>
+
+        <div class="stages-timeline" id="stages-timeline"></div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Stage-wise Water Requirements</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="stage-water-chart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics Section -->
+      <section id="analytics" class="section">
+        <div class="analytics-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3>Water Usage vs. Recommendation</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="water-usage-chart"></canvas>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Environmental Parameters</h3>
+            </div>
+            <div class="chart-container">
+              <canvas id="env-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Monthly Summary</h3>
+          </div>
+          <div class="summary-grid" id="summary-grid"></div>
+        </div>
+      </section>
+
+      <!-- Alerts Section -->
+      <section id="alerts" class="section">
+        <div class="alerts-header">
+          <div class="alert-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="critical">Critical</button>
+            <button class="filter-btn" data-filter="warning">Warning</button>
+            <button class="filter-btn" data-filter="info">Info</button>
+          </div>
+          <button class="btn btn-secondary" id="mark-read-btn">Mark All Read</button>
+        </div>
+        <div class="alerts-list" id="alerts-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/ai-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
